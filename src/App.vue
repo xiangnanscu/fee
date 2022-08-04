@@ -83,8 +83,7 @@ const makeItem = () => ({
   i: "",
 });
 
-const inputValue = ref(`项楠,杨洁|2022|3|3|江安|2022|3|3|宜宾|1|公招体检
-项楠,董茂明|2022|3|3|江安|2022|3|3|宜宾|1|评审`);
+const inputValue = ref(`张三,李四|2022|7|3|江安|2022|7|3|宜宾|1|公招体检`);
 
 const getFeeStandard = (address, flag) => {
   if (/^宜宾市?$/.test(address)) {
@@ -176,14 +175,20 @@ async function download(event) {
 </script>
 
 <template>
-  <div>
-    <textarea v-model="inputValue" rows="20" cols="100"></textarea>
-    <button @click="download">下载</button>
+  <div style="width:980px;margin: auto;">
+    <span>姓名1,姓名2|2022|7|3|江安|2022|7|3|宜宾|1|公招体检</span>
+    <textarea v-model="inputValue" rows="20" class="block"></textarea>
+    <button class="block" @click="download">下载</button>
   </div>
 </template>
 
 <style scoped>
 a {
   color: #42b983;
+}
+
+.block {
+  display: block;
+  width: 100%;
 }
 </style>
