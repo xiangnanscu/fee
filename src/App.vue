@@ -21,12 +21,12 @@ const FeeModel = Model.makeClass({
   },
 });
 
-const gwy = '王廷江,董茂明,项楠,肖宇,蒲洁,魏涛,龙曦'.split(',')
-const sy = '杨洁,陈乾,袁良会'.split(',')
+const gwy = '王廷江,董茂明,项楠,肖宇,蒲洁,魏涛,龙曦'.split(',');
+const sy = '杨洁,陈乾,袁良会'.split(',');
 const users = {
   ...Object.fromEntries(gwy.map(e => [e.trim(), 'g'])),
   ...Object.fromEntries(sy.map(e => [e.trim(), 's']))
-}
+};
 
 function s2ab(s) {
   var buf = new ArrayBuffer(s.length);
@@ -80,86 +80,86 @@ const makeItem = () => ({
   zqf_je: "",
   sf_zs: "",
   sf_je: "",
-  i:"",
-})
+  i: "",
+});
 
 const inputValue = ref(`项楠,杨洁|2022|3|3|江安|2022|3|3|宜宾|1|公招体检
 项楠,董茂明|2022|3|3|江安|2022|3|3|宜宾|1|评审`);
 
 const getFeeStandard = (address, flag) => {
   if (/^宜宾市?$/.test(address)) {
-    return flag == 'g' ? { bzf_bz: 80, zf_bz: 20 } : { bzf_bz: 80, zf_bz: 40 }
+    return flag == 'g' ? { bzf_bz: 80, zf_bz: 20 } : { bzf_bz: 80, zf_bz: 40 };
   } else if (/^(叙州|翠屏|南溪|长宁|三江新|临港|高|珙|筠连|屏山|兴文)[区县]?$/.test(address)) {
-    return flag == 'g' ? { bzf_bz: 80, zf_bz: 20 } : { bzf_bz: 80, zf_bz: 40 }
+    return flag == 'g' ? { bzf_bz: 80, zf_bz: 20 } : { bzf_bz: 80, zf_bz: 40 };
   } else if (/^(江安|下长|阳春|铁清|四面山|怡乐|留耕|夕佳山|大妙|仁和|大井|红桥|五矿|迎安)镇?$/.test(address)) {
-    return { bzf_bz: 50, zf_bz: 0 }
+    return { bzf_bz: 50, zf_bz: 0 };
   } else if (/^.+市?$/.test(address)) {
-    return flag == 'g' ? { bzf_bz: 100, zf_bz: 25} : { bzf_bz: 100, zf_bz: 50 }
+    return flag == 'g' ? { bzf_bz: 100, zf_bz: 25 } : { bzf_bz: 100, zf_bz: 50 };
   } else {
-    throw `无法解析的地址${address}`
+    throw `无法解析的地址${address}`;
   }
-}
+};
 const parseItem = line => {
-  const [nameString, ...ia] = line.split('|')
-  const rawItem = makeItem()
-  const item = Object.fromEntries(Object.keys(rawItem).map((e, i) => [e, ia[i] || rawItem[e]]))
-  const names = nameString.split(/[,]/)
-  const days = Number(item.days)
-  const end_address = item.end_address
-  const bzfSet = new Set()
-  const zfSet = new Set()
+  const [nameString, ...ia] = line.split('|');
+  const rawItem = makeItem();
+  const item = Object.fromEntries(Object.keys(rawItem).map((e, i) => [e, ia[i] || rawItem[e]]));
+  const names = nameString.split(/[,]/);
+  const days = Number(item.days);
+  const end_address = item.end_address;
+  const bzfSet = new Set();
+  const zfSet = new Set();
   for (const name of names) {
-    let flag = users[name]
+    let flag = users[name];
     if (!flag) {
-      throw `找不到职工${name}`
+      throw `找不到职工${name}`;
     }
-    const { bzf_bz, zf_bz } = getFeeStandard(end_address, flag)
-    item.bzf_je += bzf_bz * days
-    item.zf_je += zf_bz * days
-    bzfSet.add(bzf_bz)
-    zfSet.add(zf_bz)
+    const { bzf_bz, zf_bz } = getFeeStandard(end_address, flag);
+    item.bzf_je += bzf_bz * days;
+    item.zf_je += zf_bz * days;
+    bzfSet.add(bzf_bz);
+    zfSet.add(zf_bz);
   }
-  item.bzf_bz = Array.from(bzfSet).sort().join('/')
-  item.zf_bz = Array.from(zfSet).sort().join('/')
-  item.total = item.bzf_je + item.zf_je
-  item.names = names
-  item.start_date = `${item.start_year}.${item.start_month}.${item.start_day}`
-  item.end_date = item.start_year === item.end_year ? `${item.end_month}.${item.end_day}`:`${item.end_year}.${item.end_month}.${item.end_day}`
-  item.date = `${item.start_date}—${item.end_date}`
-  item.address = `${item.start_address}—${item.end_address}`
-  return item
-}
+  item.bzf_bz = Array.from(bzfSet).sort().join('/');
+  item.zf_bz = Array.from(zfSet).sort().join('/');
+  item.total = item.bzf_je + item.zf_je;
+  item.names = names;
+  item.start_date = `${item.start_year}.${item.start_month}.${item.start_day}`;
+  item.end_date = item.start_year === item.end_year ? `${item.end_month}.${item.end_day}` : `${item.end_year}.${item.end_month}.${item.end_day}`;
+  item.date = `${item.start_date}—${item.end_date}`;
+  item.address = `${item.start_address}—${item.end_address}`;
+  return item;
+};
 
-const ChineseMoneyMap = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖']
+const ChineseMoneyMap = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
 const getCnNumberList = (acc) => {
-  const cn = []
+  const cn = [];
   for (let i = 3; i > -1; i--) {
-    const unit = 10 ** i
-    const n = Math.floor(acc / unit)
-    cn.push(ChineseMoneyMap[n])
-    acc = acc - n * unit
+    const unit = 10 ** i;
+    const n = Math.floor(acc / unit);
+    cn.push(ChineseMoneyMap[n]);
+    acc = acc - n * unit;
   }
-  return cn
-}
+  return cn;
+};
 async function download(event) {
-  const items = []
+  const items = [];
   for (const line of inputValue.value.split('\n')) {
-    const item = parseItem(line)
-    items.push(item)
+    const item = parseItem(line);
+    items.push(item);
   }
-  const names = items.flatMap(e => e.names).filter((e, i, a) => a.indexOf(e) === i).join(',')
-  const total = items.map(e => e.total).reduce((x, y) => x + y)
-  const n = items.length
+  const names = items.flatMap(e => e.names).filter((e, i, a) => a.indexOf(e) === i).join(',');
+  const total = items.map(e => e.total).reduce((x, y) => x + y);
+  const n = items.length;
   for (let i = 0; i < 6 - n; i++) {
-    items.push({})
+    items.push({});
   }
   if (total > 9999) {
-    throw "总金额不能大于9999元"
+    throw "总金额不能大于9999元";
   }
-  const cn = getCnNumberList(total)
+  const cn = getCnNumberList(total);
   templateToFile({
     template: feeTemplate,
-    filename: "feeRender",
+    filename: "差旅费报销明细表",
     table: {
       names,
       qian: cn[0],
