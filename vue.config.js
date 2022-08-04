@@ -3,9 +3,9 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = defineConfig({
+  publicPath: '/fee/',
   configureWebpack: (config) => {
     return {
-      baseUrl: '/fee/',
       module: {
         rules: [{ test: /\.(docx|xlsx)$/i, use: [{ loader: "arraybuffer-loader" }] }],
       },
