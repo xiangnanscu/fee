@@ -3,23 +3,8 @@ import { ref, computed } from "vue";
 import feeTemplate from "./fee.xlsx";
 import XlsxTemplate from "xlsx-template-compact";
 import fs from "file-saver";
-import axios from "axios";
-import Model from "@xiangnanscu/model";
+import { Fee, Comment } from "./models.js";
 
-const FeeItecnodel = Model.makeClass({
-  tableName: "FeeItem",
-  abstract: true,
-  fields: {
-    name: { label: "姓名" },
-  },
-});
-const FeeModel = Model.makeClass({
-  abstract: true,
-  tableName: "Fee",
-  fields: {
-    item: { label: "条目", model: FeeItecnodel },
-  },
-});
 
 const gwy = '王雪莲,王廷江,董文茹,董茂明,项楠,肖宇,蒲洁,魏涛,龙曦,谭港,李意,朱智琦,刘洪,邹宏宇,陈志锐,范敏,唐一铭,李重安,贺鹤泉'.split(',');
 const sy = '景明江,杨洁,陈乾,袁良会,熊丽萍,吴开来,罗忠友,曾占梅,雷兰,刘俐,王珏'.split(',');
@@ -27,7 +12,7 @@ const users = {
   ...Object.fromEntries(gwy.map(e => [e.trim(), 'g'])),
   ...Object.fromEntries(sy.map(e => [e.trim(), 's']))
 };
-console.log(Object.keys(users).length)
+console.log(Object.keys(users).length);
 function s2ab(s) {
   var buf = new ArrayBuffer(s.length);
   var view = new Uint8Array(buf);
@@ -104,20 +89,20 @@ const getFeeStandard = (address, flag) => {
   }
 };
 const getDate = (s) => {
-  const d = new Date(s)
+  const d = new Date(s);
   if (!(d instanceof Date && !isNaN(d.valueOf()))) {
-    throw `日期不正确:${s}`
+    throw `日期不正确:${s}`;
   }
-  return d
-}
-const ONE_DAY = 1000 * 60 * 60 * 24
+  return d;
+};
+const ONE_DAY = 1000 * 60 * 60 * 24;
 const parseItem = line => {
   const [nameString, ...ia] = line.split('|');
   const rawItem = makeItem();
   const item = Object.fromEntries(Object.keys(rawItem).map((e, i) => [e, ia[i] || rawItem[e]]));
   const names = nameString.split(/[,、，]/);
-  const sd = getDate(item.start_date)
-  const ed = getDate(item.end_date)
+  const sd = getDate(item.start_date);
+  const ed = getDate(item.end_date);
   const days = Math.abs((sd - ed) / ONE_DAY) + 1;
   const target_address = /江安县?/.test(item.end_address) ? item.start_address : item.end_address;
   const bzfSet = new Set();
@@ -140,11 +125,11 @@ const parseItem = line => {
   // item.start_date = `${item.start_year}.${item.start_month}.${item.start_day}`;
   // item.end_date = item.start_year === item.end_year ? `${item.end_month}.${item.end_day}` : `${item.end_year}.${item.end_month}.${item.end_day}`;
   if (sd.getFullYear() == ed.getFullYear()) {
-    item.end_date = `${ed.getMonth() + 1}.${ed.getDate()}`
+    item.end_date = `${ed.getMonth() + 1}.${ed.getDate()}`;
   }
   item.date = `${item.start_date}—${item.end_date}`;
   item.address = `${item.start_address}—${item.end_address}`;
-  item.days = days
+  item.days = days;
   return item;
 };
 
@@ -159,12 +144,18 @@ const getCnNumberList = (acc) => {
   }
   return cn;
 };
-function download(event) {
+async function download(event) {
+  try {
+    console.log(await Comment.where({ id: 1 }).exec());
+  } catch (error) {
+    console.log("error aws lambda");
+  }
+
   const items = [];
   for (const line of inputValue.value.split('\n')) {
-    const cline = line.replaceAll(/\s/g, "")
+    const cline = line.replaceAll(/\s/g, "");
     if (!cline) {
-      continue
+      continue;
     }
     const item = parseItem(cline);
     items.push(item);
@@ -179,7 +170,7 @@ function download(event) {
     throw `总金额${total}已大于9999元,请检查出差总天数${items.filter(e => e.days).map(e => e.days).reduce((x, y) => x + y)}是否正确`;
   }
   const cn = getCnNumberList(total);
-  const now = new Date()
+  const now = new Date();
   templateToFile({
     template: feeTemplate,
     filename: "差旅费报销明细表",
@@ -198,18 +189,21 @@ function download(event) {
       t: items,
     },
   });
+  // const prisma = new PrismaClient();
+  // await prisma.fee.createMany({ data: items });
+  // prisma.$disconnect();
 }
-const errorMsg = ref("")
+const errorMsg = ref("");
 const tryDownload = () => {
   try {
-    errorMsg.value = ""
-    download()
-    console.log("error  not happens")
+    errorMsg.value = "";
+    download();
+    console.log("error  not happens");
   } catch (error) {
-    console.log("error happens")
-    errorMsg.value = error.message || error
+    console.log("error happens");
+    errorMsg.value = error.message || error;
   }
-}
+};
 </script>
 
 <template>

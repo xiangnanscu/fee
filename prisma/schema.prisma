@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model Comment {
+  id      Int      @id @default(autoincrement())
+  ctime   DateTime @default(now())
+  utime   DateTime @updatedAt
+  name    String   @db.VarChar(255)
+  content String   @db.VarChar(255)
+}
+
+model Fee {
+  id         Int      @id @default(autoincrement())
+  ctime      DateTime @default(now())
+  start_date DateTime
+  start_address String @db.VarChar(6)
+  end_date   DateTime
+  end_address String @db.VarChar(6)
+  reason String @db.VarChar(25)
+  bzf_bz Int @default(0)
+  bzf_je Int @default(0)
+  zf_bz Int @default(0)
+  zf_je Int @default(0)
+}
