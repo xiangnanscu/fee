@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "test":"node test.js",
     "u": "ncu -u && npm install",
     "prerelease": "npm --no-git-tag-version version minor",
     "release": "npm run swc && push_option=release npm run push",
