@@ -23,7 +23,7 @@ Fee.query = async function (statement) {
 };
 
 const Comment = Model.makeClass({
-  tableName: "Fee",
+  tableName: "Comment",
   fields: {
     id: { primaryKey: true, type: "integer" },
     ctime: { type: "datetime", autoNowAdd: true },
@@ -34,7 +34,7 @@ const Comment = Model.makeClass({
   },
 });
 Comment.query = async function (statement) {
-  return await axios.post("https://rul99eygue.execute-api.ap-northeast-1.amazonaws.com/default/planetscale", { statement });
+  return await axios.post("https://832iyue4j2.execute-api.ap-northeast-1.amazonaws.com/default/planetscale", { statement });
 };
 
 export {
