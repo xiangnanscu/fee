@@ -23,7 +23,7 @@ Fee.query = async function (statement) {
 };
 
 const Comment = Model.makeClass({
-  tableName: "Fee",
+  tableName: "Comment",
   fields: {
     id: { primaryKey: true, type: "integer" },
     ctime: { type: "datetime", autoNowAdd: true },

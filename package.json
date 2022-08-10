@@ -6,12 +6,12 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test":"node test.js",
+    "test": "node test.js",
     "u": "ncu -u && npm install",
     "prerelease": "npm --no-git-tag-version version minor",
     "release": "npm run swc && push_option=release npm run push",
     "connect": "pscale connect lab dev --port 3309",
-    "db:push":"prisma db push",
+    "db:push": "prisma db push",
     "push": "git add . && git commit -am \"${msg:-push}\" && git push --push-option=${push_option:-nothing}"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "buffer": "^6.0.3",
     "core-js": "^3.24.1",
     "file-saver": "^2.0.5",
+    "mysql2": "^2.3.3",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.4",

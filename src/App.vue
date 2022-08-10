@@ -146,9 +146,14 @@ const getCnNumberList = (acc) => {
 };
 async function download(event) {
   try {
-    console.log(await Comment.where({ id: 1 }).exec());
+    console.log(await Comment.insert({ utime: "2022-01-01 00:00:00", name: "k1", content: "c1" }).exec());
   } catch (error) {
-    console.log("error aws lambda");
+    console.log("insert error aws lambda:", error);
+  }
+  try {
+    console.log(await Comment.where({ id__gt: 0 }).exec());
+  } catch (error) {
+    console.log("select error aws lambda:", error);
   }
 
   const items = [];
