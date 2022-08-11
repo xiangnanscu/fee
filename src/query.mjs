@@ -11,5 +11,6 @@ async function query(sql) {
   }
 }
 
+query("select * from t").then(e=>console.log(e)).catch(e=>console.log(e))
 export { query };
 
