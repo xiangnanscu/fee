@@ -19,7 +19,7 @@ const Fee = Model.makeClass({
   },
 });
 Fee.query = async function (statement) {
-  return await axios.post("https://rul99eygue.execute-api.ap-northeast-1.amazonaws.com/default/planetscale", { statement });
+  return await axios.post("https://832iyue4j2.execute-api.ap-northeast-1.amazonaws.com/default/planetscale", { statement });
 };
 
 const Comment = Model.makeClass({
