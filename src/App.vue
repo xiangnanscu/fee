@@ -112,35 +112,46 @@ const makeDbItem = item => ({
   zf_bz: 0,
 });
 const parseItem = (line) => {
-  const [nameString, ...ia] = line.split("|");
+  const items = [];
+  const [nameString, start_date, start_address, end_date, end_address, reason] = line.split("|");
   const rawItem = makeItem();
-  const item = Object.fromEntries(Object.keys(rawItem).map((e, i) => [e, ia[i] || rawItem[e]]));
+  const item = { start_date, start_address, end_date, end_address, reason };
   const names = nameString.split(/[,、，]/);
-  item.names = names;
   const sd = getDate(item.start_date);
   const ed = getDate(item.end_date);
   const days = Math.abs((sd - ed) / ONE_DAY) + 1;
   item.days = days;
   const target_address = /江安县?/.test(item.end_address) ? item.start_address : item.end_address;
-  const bzfSet = new Set();
-  const zfSet = new Set();
   for (const name of names) {
-    let flag = users[name];
-    if (!flag) {
+    let type = users[name];
+    if (!type) {
       throw `找不到职工"${name}"`;
     }
-    const { bzf_bz, zf_bz } = getFeeStandard(target_address, flag);
-    item.bzf_je += bzf_bz * days;
-    item.zf_je += zf_bz * days;
-    bzfSet.add(bzf_bz);
-    zfSet.add(zf_bz);
+    const { bzf_bz, zf_bz } = getFeeStandard(target_address, type);
+    const bzf_je = bzf_bz * days;
+    const zf_je = zf_bz * days;
+    const total = bzf_je + zf_je;
+    items.push({ ...item, type, name, bzf_je, zf_je, bzf_bz, zf_bz, total });
+  }
+  return items;
+};
+const mergeItems = (items) => {
+  const item = { ...items[0] };
+  item.names = [item.name]
+  const sd = getDate(item.start_date);
+  const ed = getDate(item.end_date);
+  const bzfSet = new Set([item.bzf_bz]);
+  const zfSet = new Set([item.zf_bz]);
+  for (const e of items.slice(1)) {
+    item.names.push(e.name)
+    item.bzf_je += e.bzf_je;
+    item.zf_je += e.zf_je;
+    bzfSet.add(e.bzf_bz);
+    zfSet.add(e.zf_bz);
   }
   item.bzf_bz = Array.from(bzfSet).sort().join("/");
   item.zf_bz = Array.from(zfSet).sort().join("/");
   item.total = item.bzf_je + item.zf_je;
-  // item.start_date = `${item.start_year}.${item.start_month}.${item.start_day}`;
-  // item.end_date = item.start_year === item.end_year ? `${item.end_month}.${item.end_day}` : `${item.end_year}.${item.end_month}.${item.end_day}`;
-  item._end_date = item.end_date;
   if (sd.getFullYear() == ed.getFullYear()) {
     item.end_date = `${ed.getMonth() + 1}.${ed.getDate()}`;
   }
@@ -148,7 +159,6 @@ const parseItem = (line) => {
   item.address = `${item.start_address}—${item.end_address}`;
   return item;
 };
-
 const ChineseMoneyMap = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"];
 const getCnNumberList = (acc) => {
   const cn = [];
@@ -161,26 +171,23 @@ const getCnNumberList = (acc) => {
   return cn;
 };
 async function downloadFee(event) {
-  const res = await Fee.all()
-  console.log({res})
+  const res = await Fee.all();
+  console.log({ res });
 }
 async function downloadFeeFile(event) {
   const items = [];
+  const dbRows = [];
   for (const line of inputValue.value.split("\n")) {
     const cline = line.replaceAll(/\s/g, "");
     if (!cline) {
       continue;
     }
-    const item = parseItem(cline);
-    items.push(item);
+    const dbItems = parseItem(cline);
+    const fileItem = mergeItems(dbItems);
+    items.push(fileItem);
+    dbRows.push(...dbItems);
   }
-  const itemsDb = items.map(makeDbItem);
-  try {
-    console.log(JSON.stringify(itemsDb));
-    console.log(await Fee.insert(itemsDb).exec());
-  } catch (error) {
-    console.log("Fee insert error aws lambda:", error, itemsDb);
-  }
+  console.log({ items, dbRows })
   const names = items
     .flatMap((e) => e.names)
     .filter((e, i, a) => a.indexOf(e) === i)
@@ -216,6 +223,11 @@ async function downloadFeeFile(event) {
       t: items,
     },
   });
+  try {
+    console.log(await Fee.insert(dbRows).exec());
+  } catch (error) {
+    console.log("Fee insert error aws lambda:", error);
+  }
 }
 const errorMsg = ref("");
 const tryDownload = () => {

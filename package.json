@@ -10,6 +10,7 @@
     "u": "ncu -u && npm install",
     "prerelease": "npm --no-git-tag-version version minor",
     "release": "npm run swc && push_option=release npm run push",
+    "vpn": "sshuttle --dns -r root@rsks.ren 0.0.0.0/0 -x rsks.ren",
     "connect": "pscale connect lab dev --port 3309",
     "db:push": "prisma db push",
     "push": "git add . && git commit -am \"${msg:-push}\" && git push --push-option=${push_option:-nothing}"

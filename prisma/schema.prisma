@@ -28,6 +28,10 @@ model Fee {
   end_date   DateTime
   end_address String @db.VarChar(6)
   reason String @db.VarChar(25)
+  name String @db.VarChar(6) @default("")
+  type String @db.VarChar(1) @default("")
+  days Int @default(1)
+  total Int @default(0)
   bzf_bz Int @default(0)
   bzf_je Int @default(0)
   zf_bz Int @default(0)
